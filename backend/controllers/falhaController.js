@@ -3,9 +3,9 @@ import { query, queryOne, execute } from '../database/connection.js';
 // Listar todas as falhas
 export const getAllFalhas = async (req, res) => {
   try {
-    const { tablet_id, status, severidade } = req.query;
+    const { tablet_id, status: statusFilter, severidade } = req.query;
     
-    let query = `
+    let queryStr = `
       SELECT f.*, t.tombamento, t.modelo, t.localizacao
       FROM falhas f
       JOIN tablets t ON f.tablet_id = t.id
@@ -14,23 +14,23 @@ export const getAllFalhas = async (req, res) => {
     const params = [];
 
     if (tablet_id) {
-      query += ' AND f.tablet_id = ?';
+      queryStr += ' AND f.tablet_id = ?';
       params.push(tablet_id);
     }
 
-    if (status) {
-      query += ' AND f.status = ?';
-      params.push(status);
+    if (statusFilter) {
+      queryStr += ' AND f.status = ?';
+      params.push(statusFilter);
     }
 
     if (severidade) {
-      query += ' AND f.severidade = ?';
+      queryStr += ' AND f.severidade = ?';
       params.push(severidade);
     }
 
-    query += ' ORDER BY f.data_ocorrencia DESC';
+    queryStr += ' ORDER BY f.data_ocorrencia DESC';
 
-    const falhas = await query(query, params);
+    const falhas = await query(queryStr, params);
 
     res.json({
       success: true,

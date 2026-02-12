@@ -151,13 +151,13 @@ const Falhas = () => {
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
         </div>
-      ) : falhas.length === 0 ? (
+      ) : falhasList.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500">Nenhuma falha encontrada</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {falhas.map((falha) => (
+          {falhasList.map((falha) => (
             <div key={falha.id} className="card hover:shadow-lg transition-shadow">
               <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                 <div className="flex-1">

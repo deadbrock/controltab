@@ -5,27 +5,27 @@ export const relatorioGeral = async (req, res) => {
   try {
     const { regiao, status, cliente } = req.query;
     
-    let query = 'SELECT * FROM tablets WHERE 1=1';
+    let queryStr = 'SELECT * FROM tablets WHERE 1=1';
     const params = [];
 
     if (regiao) {
-      query += ' AND regiao = ?';
+      queryStr += ' AND regiao = ?';
       params.push(regiao);
     }
 
     if (status) {
-      query += ' AND status = ?';
+      queryStr += ' AND status = ?';
       params.push(status);
     }
 
     if (cliente) {
-      query += ' AND cliente LIKE ?';
+      queryStr += ' AND cliente LIKE ?';
       params.push(`%${cliente}%`);
     }
 
-    query += ' ORDER BY cliente, cidade, tombamento';
+    queryStr += ' ORDER BY cliente, cidade, tombamento';
 
-    const tablets = await query(query, params);
+    const tablets = await query(queryStr, params);
 
     // Estatísticas gerais
     const stats = {
@@ -82,7 +82,7 @@ export const relatorioFalhas = async (req, res) => {
   try {
     const { severidade, status, data_inicio, data_fim } = req.query;
     
-    let query = `
+    let queryStr = `
       SELECT f.*, t.tombamento, t.modelo, t.cliente, t.localizacao
       FROM falhas f
       JOIN tablets t ON f.tablet_id = t.id
@@ -91,28 +91,28 @@ export const relatorioFalhas = async (req, res) => {
     const params = [];
 
     if (severidade) {
-      query += ' AND f.severidade = ?';
+      queryStr += ' AND f.severidade = ?';
       params.push(severidade);
     }
 
     if (status) {
-      query += ' AND f.status = ?';
+      queryStr += ' AND f.status = ?';
       params.push(status);
     }
 
     if (data_inicio) {
-      query += ' AND f.data_ocorrencia >= ?';
+      queryStr += ' AND f.data_ocorrencia >= ?';
       params.push(data_inicio);
     }
 
     if (data_fim) {
-      query += ' AND f.data_ocorrencia <= ?';
+      queryStr += ' AND f.data_ocorrencia <= ?';
       params.push(data_fim);
     }
 
-    query += ' ORDER BY f.data_ocorrencia DESC';
+    queryStr += ' ORDER BY f.data_ocorrencia DESC';
 
-    const falhas = await query(query, params);
+    const falhas = await query(queryStr, params);
 
     // Estatísticas de falhas
     const stats = {
@@ -153,7 +153,7 @@ export const relatorioManutencoes = async (req, res) => {
   try {
     const { tipo, status, data_inicio, data_fim } = req.query;
     
-    let query = `
+    let queryStr = `
       SELECT m.*, t.tombamento, t.modelo, t.cliente, t.localizacao
       FROM manutencoes m
       JOIN tablets t ON m.tablet_id = t.id
@@ -162,28 +162,28 @@ export const relatorioManutencoes = async (req, res) => {
     const params = [];
 
     if (tipo) {
-      query += ' AND m.tipo = ?';
+      queryStr += ' AND m.tipo = ?';
       params.push(tipo);
     }
 
     if (status) {
-      query += ' AND m.status = ?';
+      queryStr += ' AND m.status = ?';
       params.push(status);
     }
 
     if (data_inicio) {
-      query += ' AND m.data_inicio >= ?';
+      queryStr += ' AND m.data_inicio >= ?';
       params.push(data_inicio);
     }
 
     if (data_fim) {
-      query += ' AND m.data_inicio <= ?';
+      queryStr += ' AND m.data_inicio <= ?';
       params.push(data_fim);
     }
 
-    query += ' ORDER BY m.data_inicio DESC';
+    queryStr += ' ORDER BY m.data_inicio DESC';
 
-    const manutencoes = await query(query, params);
+    const manutencoes = await query(queryStr, params);
 
     // Estatísticas de manutenções
     const stats = {

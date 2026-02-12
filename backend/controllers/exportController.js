@@ -5,27 +5,27 @@ import { query, queryOne, execute } from '../database/connection.js';
 // Exportar Tablets para PDF
 export const exportTabletsPDF = async (req, res) => {
   try {
-    const { regiao, status, cliente } = req.query;
+    const { regiao, status: statusFilter, cliente } = req.query;
     
-    let query = 'SELECT * FROM tablets WHERE 1=1';
+    let queryStr = 'SELECT * FROM tablets WHERE 1=1';
     const params = [];
 
     if (regiao) {
-      query += ' AND regiao = ?';
+      queryStr += ' AND regiao = ?';
       params.push(regiao);
     }
-    if (status) {
-      query += ' AND status = ?';
-      params.push(status);
+    if (statusFilter) {
+      queryStr += ' AND status = ?';
+      params.push(statusFilter);
     }
     if (cliente) {
-      query += ' AND cliente LIKE ?';
+      queryStr += ' AND cliente LIKE ?';
       params.push(`%${cliente}%`);
     }
 
-    query += ' ORDER BY cliente, cidade';
+    queryStr += ' ORDER BY cliente, cidade';
 
-    const tablets = await query(query, params);
+    const tablets = await query(queryStr, params);
 
     // Criar PDF
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -75,27 +75,27 @@ export const exportTabletsPDF = async (req, res) => {
 // Exportar Tablets para Excel
 export const exportTabletsExcel = async (req, res) => {
   try {
-    const { regiao, status, cliente } = req.query;
+    const { regiao, status: statusFilter, cliente } = req.query;
     
-    let query = 'SELECT * FROM tablets WHERE 1=1';
+    let queryStr = 'SELECT * FROM tablets WHERE 1=1';
     const params = [];
 
     if (regiao) {
-      query += ' AND regiao = ?';
+      queryStr += ' AND regiao = ?';
       params.push(regiao);
     }
-    if (status) {
-      query += ' AND status = ?';
-      params.push(status);
+    if (statusFilter) {
+      queryStr += ' AND status = ?';
+      params.push(statusFilter);
     }
     if (cliente) {
-      query += ' AND cliente LIKE ?';
+      queryStr += ' AND cliente LIKE ?';
       params.push(`%${cliente}%`);
     }
 
-    query += ' ORDER BY cliente, cidade';
+    queryStr += ' ORDER BY cliente, cidade';
 
-    const tablets = await query(query, params);
+    const tablets = await query(queryStr, params);
 
     // Criar Excel
     const workbook = new ExcelJS.Workbook();
