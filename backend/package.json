@@ -12,7 +12,8 @@
     "migrate:v2": "node database/migrate-v2.js",
     "migrate:auth": "node database/migrate-auth.js",
     "seed:admin": "node database/seed-admin.js",
-    "setup:production": "node setup-production.js"
+    "setup:production": "node setup-production.js",
+    "fix:schema": "node fix-schema.js"
   },
   "keywords": [],
   "author": "",
