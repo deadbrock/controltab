@@ -85,4 +85,30 @@ export const trocasAPI = {
   delete: (id) => api.delete(`/trocas/${id}`),
 };
 
+// Usuários
+export const usersAPI = {
+  getAll: () => api.get('/users'),
+  create: (data) => api.post('/users', data),
+  update: (id, data) => api.put(`/users/${id}`, data),
+  delete: (id) => api.delete(`/users/${id}`),
+  resetPassword: (id, newPassword) => api.post(`/users/${id}/reset-password`, { newPassword }),
+};
+
+// Relatórios
+export const relatoriosAPI = {
+  geral: (params) => api.get('/relatorios/geral', { params }),
+  falhas: (params) => api.get('/relatorios/falhas', { params }),
+  manutencoes: (params) => api.get('/relatorios/manutencoes', { params }),
+};
+
+// Exportações (PDF e Excel)
+export const exportAPI = {
+  tabletsPDF: (params) => api.get('/exports/tablets/pdf', { params, responseType: 'blob' }),
+  tabletsExcel: (params) => api.get('/exports/tablets/excel', { params, responseType: 'blob' }),
+  falhasPDF: (params) => api.get('/exports/falhas/pdf', { params, responseType: 'blob' }),
+  falhasExcel: (params) => api.get('/exports/falhas/excel', { params, responseType: 'blob' }),
+  manutencoesPDF: (params) => api.get('/exports/manutencoes/pdf', { params, responseType: 'blob' }),
+  manutencoesExcel: (params) => api.get('/exports/manutencoes/excel', { params, responseType: 'blob' }),
+};
+
 export default api;

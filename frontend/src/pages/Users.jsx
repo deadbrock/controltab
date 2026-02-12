@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, RefreshCw, Shield, User } from 'lucide-react';
-import axios from 'axios';
+import { usersAPI } from '../services/api';
 import UserModal from '../components/UserModal';
 
 const Users = () => {
@@ -16,7 +16,7 @@ const Users = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/users');
+      const response = await usersAPI.getAll();
       setUsers(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
@@ -30,7 +30,7 @@ const Users = () => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
     try {
-      await axios.delete(`/api/users/${id}`);
+      await usersAPI.delete(id);
       loadUsers();
     } catch (error) {
       console.error('Erro ao deletar usuário:', error);
@@ -49,7 +49,7 @@ const Users = () => {
     }
 
     try {
-      await axios.post(`/api/users/${id}/reset-password`, { newPassword });
+      await usersAPI.resetPassword(id, newPassword);
       alert('Senha resetada com sucesso!');
     } catch (error) {
       console.error('Erro ao resetar senha:', error);

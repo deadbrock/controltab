@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import axios from 'axios';
+import { usersAPI } from '../services/api';
 
 const UserModal = ({ user, onClose }) => {
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const UserModal = ({ user, onClose }) => {
       if (user) {
         // Editar usuário (sem senha)
         const { password, ...dataToUpdate } = formData;
-        await axios.put(`/api/users/${user.id}`, dataToUpdate);
+        await usersAPI.update(user.id, dataToUpdate);
       } else {
         // Criar novo usuário (com senha)
         if (!formData.password || formData.password.length < 6) {
@@ -40,7 +40,7 @@ const UserModal = ({ user, onClose }) => {
           setLoading(false);
           return;
         }
-        await axios.post('/api/users', formData);
+        await usersAPI.create(formData);
       }
       onClose();
     } catch (error) {
