@@ -83,6 +83,9 @@ const Falhas = () => {
 
   const hasActiveFilters = filters.status || filters.severidade;
 
+  // Garantir que falhas seja sempre um array
+  const falhasList = Array.isArray(falhas) ? falhas : [];
+
   return (
     <div className="space-y-6">
       {/* Header */}
