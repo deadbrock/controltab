@@ -60,8 +60,8 @@ export const createUser = async (req, res) => {
     // Inserir usuário
     const result = await execute(
       `INSERT INTO users (name, email, password, role, active) 
-       VALUES (?, ?, ?, ?, 1)`,
-      [name, email, hashedPassword, role]
+       VALUES (?, ?, ?, ?, ?)`,
+      [name, email, hashedPassword, role, true]
     );
 
     res.status(201).json({
@@ -119,7 +119,7 @@ export const updateUser = async (req, res) => {
     }
     if (typeof active === 'boolean') {
       updates.push('active = ?');
-      values.push(active ? 1 : 0);
+      values.push(active);
     }
 
     if (updates.length === 0) {
