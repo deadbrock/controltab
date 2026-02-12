@@ -68,18 +68,18 @@ export const createTroca = async (req, res) => {
     `, [tablet_antigo_id, tablet_novo_id, motivo, descricao_detalhada, data_troca, responsavel]);
 
     // Atualizar status do tablet antigo
-    await execute('UPDATE tablets SET status = "SUBSTITUIDO" WHERE id = ?', [tablet_antigo_id]);
+    await execute('UPDATE tablets SET status = \'SUBSTITUIDO\' WHERE id = ?', [tablet_antigo_id]);
 
     // Registrar no histórico
     await execute(`
       INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento, usuario)
-      VALUES (?, 'TROCA', ?, datetime('now', 'localtime'), ?)
+      VALUES (?, 'TROCA', ?, CURRENT_TIMESTAMP, ?)
     `, [tablet_antigo_id, `Tablet substituído - ${motivo}`, responsavel]);
 
     if (tablet_novo_id) {
       await execute(`
         INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento, usuario)
-        VALUES (?, 'ATIVACAO', 'Tablet ativado em substituição', datetime('now', 'localtime'), ?)
+        VALUES (?, 'ATIVACAO', 'Tablet ativado em substituição', CURRENT_TIMESTAMP, ?)
       `, [tablet_novo_id, responsavel]);
     }
 

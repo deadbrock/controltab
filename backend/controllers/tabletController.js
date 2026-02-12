@@ -52,7 +52,7 @@ export const getTabletById = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const tablet = await db.get('SELECT * FROM tablets WHERE id = ?', [id]);
+    const tablet = await queryOne('SELECT * FROM tablets WHERE id = ?', [id]);
 
     if (!tablet) {
       return res.status(404).json({
@@ -133,9 +133,9 @@ export const createTablet = async (req, res) => {
         numero_telefone, operadora, observacoes]);
 
     // Registrar no histórico
-    await db.run(`
+    await execute(`
       INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento)
-      VALUES (?, 'CADASTRO', 'Tablet cadastrado no sistema', datetime('now', 'localtime'))
+      VALUES (?, 'CADASTRO', 'Tablet cadastrado no sistema', CURRENT_TIMESTAMP)
     `, [result.lastID]);
 
     res.status(201).json({
@@ -166,7 +166,7 @@ export const updateTablet = async (req, res) => {
     const updateData = req.body;
 
     // Verificar se o tablet existe
-    const tablet = await db.get('SELECT * FROM tablets WHERE id = ?', [id]);
+    const tablet = await queryOne('SELECT * FROM tablets WHERE id = ?', [id]);
     if (!tablet) {
       return res.status(404).json({
         success: false,
@@ -190,14 +190,14 @@ export const updateTablet = async (req, res) => {
 
     await execute(`
       UPDATE tablets 
-      SET ${setClause}, updated_at = datetime('now', 'localtime')
+      SET ${setClause}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `, values);
 
     // Registrar no histórico
     await execute(`
       INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento)
-      VALUES (?, 'ATUALIZACAO', 'Dados do tablet atualizados', datetime('now', 'localtime'))
+      VALUES (?, 'ATUALIZACAO', 'Dados do tablet atualizados', CURRENT_TIMESTAMP)
     `, [id]);
 
     res.json({
@@ -218,7 +218,7 @@ export const deleteTablet = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const tablet = await db.get('SELECT * FROM tablets WHERE id = ?', [id]);
+    const tablet = await queryOne('SELECT * FROM tablets WHERE id = ?', [id]);
     if (!tablet) {
       return res.status(404).json({
         success: false,
@@ -256,14 +256,14 @@ export const getStatistics = async (req, res) => {
       manutencoesRow
     ] = await Promise.all([
       queryOne('SELECT COUNT(*) as count FROM tablets'),
-      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = "ATIVO"'),
-      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = "MANUTENCAO"'),
-      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = "INATIVO"'),
-      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = "SUBSTITUIDO"'),
-      queryOne('SELECT COUNT(*) as count FROM tablets WHERE regiao = "NORTE"'),
-      queryOne('SELECT COUNT(*) as count FROM tablets WHERE regiao = "NORDESTE"'),
-      queryOne('SELECT COUNT(*) as count FROM falhas WHERE status = "ABERTA"'),
-      queryOne('SELECT COUNT(*) as count FROM manutencoes WHERE status IN ("AGENDADA", "EM_ANDAMENTO")')
+      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = \'ATIVO\''),
+      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = \'MANUTENCAO\''),
+      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = \'INATIVO\''),
+      queryOne('SELECT COUNT(*) as count FROM tablets WHERE status = \'SUBSTITUIDO\''),
+      queryOne('SELECT COUNT(*) as count FROM tablets WHERE regiao = \'NORTE\''),
+      queryOne('SELECT COUNT(*) as count FROM tablets WHERE regiao = \'NORDESTE\''),
+      queryOne('SELECT COUNT(*) as count FROM falhas WHERE status = \'ABERTA\''),
+      queryOne('SELECT COUNT(*) as count FROM manutencoes WHERE status IN (\'AGENDADA\', \'EM_ANDAMENTO\')')
     ]);
 
     const stats = {

@@ -76,7 +76,7 @@ export const createFalha = async (req, res) => {
     // Registrar no histórico
     await execute(`
       INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento)
-      VALUES (?, 'FALHA', ?, datetime('now', 'localtime'))
+      VALUES (?, 'FALHA', ?, CURRENT_TIMESTAMP)
     `, [tablet_id, `Falha registrada: ${tipo_falha}`]);
 
     res.status(201).json({
@@ -126,7 +126,7 @@ export const updateFalha = async (req, res) => {
     if (updateData.status === 'RESOLVIDA') {
       await execute(`
         INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento)
-        VALUES (?, 'FALHA_RESOLVIDA', 'Falha resolvida', datetime('now', 'localtime'))
+        VALUES (?, 'FALHA_RESOLVIDA', 'Falha resolvida', CURRENT_TIMESTAMP)
       `, [falha.tablet_id]);
     }
 

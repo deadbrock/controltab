@@ -74,13 +74,13 @@ export const createManutencao = async (req, res) => {
 
     // Atualizar status do tablet se necessário
     if (status === 'EM_ANDAMENTO') {
-      await execute('UPDATE tablets SET status = "MANUTENCAO" WHERE id = ?', [tablet_id]);
+      await execute('UPDATE tablets SET status = \'MANUTENCAO\' WHERE id = ?', [tablet_id]);
     }
 
     // Registrar no histórico
     await execute(`
       INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento)
-      VALUES (?, 'MANUTENCAO', ?, datetime('now', 'localtime'))
+      VALUES (?, 'MANUTENCAO', ?, CURRENT_TIMESTAMP)
     `, [tablet_id, `Manutenção ${tipo.toLowerCase()} registrada`]);
 
     res.status(201).json({
@@ -128,11 +128,11 @@ export const updateManutencao = async (req, res) => {
 
     // Se a manutenção foi concluída, atualizar status do tablet
     if (updateData.status === 'CONCLUIDA') {
-      await execute('UPDATE tablets SET status = "ATIVO" WHERE id = ?', [manutencao.tablet_id]);
+      await execute('UPDATE tablets SET status = \'ATIVO\' WHERE id = ?', [manutencao.tablet_id]);
       
       await execute(`
         INSERT INTO historico_uso (tablet_id, evento, descricao, data_evento)
-        VALUES (?, 'MANUTENCAO_CONCLUIDA', 'Manutenção concluída e tablet reativado', datetime('now', 'localtime'))
+        VALUES (?, 'MANUTENCAO_CONCLUIDA', 'Manutenção concluída e tablet reativado', CURRENT_TIMESTAMP)
       `, [manutencao.tablet_id]);
     }
 
