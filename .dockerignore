@@ -1,0 +1,34 @@
+# Node modules
+node_modules/
+*/node_modules/
+npm-debug.log*
+
+# Frontend
+frontend/
+
+# Arquivos de desenvolvimento
+.git/
+.gitignore
+*.md
+.env.local
+.env.example
+
+# Banco de dados local
+*.db
+*.db-journal
+
+# IDE
+.vscode/
+.idea/
+
+# Documentação
+*.md
+!backend/README.md
+
+# Tests
+*.test.js
+*.spec.js
+
+# Railway
+railway.json
+vercel.json
