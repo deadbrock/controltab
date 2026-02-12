@@ -3,7 +3,7 @@ import { query, queryOne, execute } from '../database/connection.js';
 // Relatório Geral de Tablets
 export const relatorioGeral = async (req, res) => {
   try {
-    const { regiao, status, cliente } = req.query;
+    const { regiao, status: statusFilter, cliente } = req.query;
     
     let queryStr = 'SELECT * FROM tablets WHERE 1=1';
     const params = [];
@@ -13,9 +13,9 @@ export const relatorioGeral = async (req, res) => {
       params.push(regiao);
     }
 
-    if (status) {
+    if (statusFilter) {
       queryStr += ' AND status = ?';
-      params.push(status);
+      params.push(statusFilter);
     }
 
     if (cliente) {
@@ -80,7 +80,7 @@ export const relatorioGeral = async (req, res) => {
 // Relatório de Falhas
 export const relatorioFalhas = async (req, res) => {
   try {
-    const { severidade, status, data_inicio, data_fim } = req.query;
+    const { severidade, status: statusFilter, data_inicio, data_fim } = req.query;
     
     let queryStr = `
       SELECT f.*, t.tombamento, t.modelo, t.cliente, t.localizacao
@@ -95,9 +95,9 @@ export const relatorioFalhas = async (req, res) => {
       params.push(severidade);
     }
 
-    if (status) {
+    if (statusFilter) {
       queryStr += ' AND f.status = ?';
-      params.push(status);
+      params.push(statusFilter);
     }
 
     if (data_inicio) {
@@ -151,7 +151,7 @@ export const relatorioFalhas = async (req, res) => {
 // Relatório de Manutenções
 export const relatorioManutencoes = async (req, res) => {
   try {
-    const { tipo, status, data_inicio, data_fim } = req.query;
+    const { tipo, status: statusFilter, data_inicio, data_fim } = req.query;
     
     let queryStr = `
       SELECT m.*, t.tombamento, t.modelo, t.cliente, t.localizacao
@@ -166,9 +166,9 @@ export const relatorioManutencoes = async (req, res) => {
       params.push(tipo);
     }
 
-    if (status) {
+    if (statusFilter) {
       queryStr += ' AND m.status = ?';
-      params.push(status);
+      params.push(statusFilter);
     }
 
     if (data_inicio) {

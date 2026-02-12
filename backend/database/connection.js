@@ -102,22 +102,40 @@ export const execute = async (sql, params = []) => {
   
   if (dbType === 'postgres') {
     // Para INSERT, tentar retornar o ID
-    const isInsert = sql.trim().toUpperCase().startsWith('INSERT');
+    const sqlTrimmed = sql.trim().toUpperCase();
+    const isInsert = sqlTrimmed.startsWith('INSERT');
     
-    if (isInsert && !adaptedSql.includes('RETURNING')) {
+    if (isInsert && !adaptedSql.toUpperCase().includes('RETURNING')) {
       // Adicionar RETURNING id se não tiver
-      const adaptedWithReturning = adaptedSql.replace(/;?\s*$/, ' RETURNING id');
-      const result = await db.query(adaptedWithReturning, params);
-      return { 
-        lastID: result.rows[0]?.id, 
-        changes: result.rowCount 
-      };
+      // Remover ponto e vírgula e espaços no final, depois adicionar RETURNING
+      const cleanSql = adaptedSql.replace(/;\s*$/g, '').trim();
+      const sqlWithReturning = cleanSql + ' RETURNING id';
+      
+      try {
+        const result = await db.query(sqlWithReturning, params);
+        return { 
+          lastID: result.rows[0]?.id, 
+          changes: result.rowCount 
+        };
+      } catch (error) {
+        console.error('❌ Erro no execute (PostgreSQL):', error.message);
+        console.error('SQL:', sqlWithReturning);
+        console.error('Params:', params);
+        throw error;
+      }
     } else {
-      const result = await db.query(adaptedSql, params);
-      return { 
-        lastID: result.rows[0]?.id, 
-        changes: result.rowCount 
-      };
+      try {
+        const result = await db.query(adaptedSql, params);
+        return { 
+          lastID: result.rows[0]?.id, 
+          changes: result.rowCount 
+        };
+      } catch (error) {
+        console.error('❌ Erro no execute (PostgreSQL):', error.message);
+        console.error('SQL:', adaptedSql);
+        console.error('Params:', params);
+        throw error;
+      }
     }
   } else {
     return await db.run(sql, params);
