@@ -16,9 +16,10 @@ const Trocas = () => {
     try {
       setLoading(true);
       const response = await trocasAPI.getAll();
-      setTrocas(response.data.data);
+      setTrocas(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error('Erro ao carregar trocas:', error);
+      setTrocas([]);
     } finally {
       setLoading(false);
     }

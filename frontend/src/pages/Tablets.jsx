@@ -30,9 +30,10 @@ const Tablets = () => {
       if (filters.search) params.search = filters.search;
 
       const response = await tabletsAPI.getAll(params);
-      setTablets(response.data.data);
+      setTablets(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error('Erro ao carregar tablets:', error);
+      setTablets([]);
     } finally {
       setLoading(false);
     }

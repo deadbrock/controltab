@@ -17,9 +17,10 @@ const Users = () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/users');
-      setUsers(response.data.data);
+      setUsers(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,7 @@ const Users = () => {
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
         </div>
-      ) : users.length === 0 ? (
+      ) : !Array.isArray(users) || users.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500">Nenhum usuário encontrado</p>
         </div>

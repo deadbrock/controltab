@@ -21,9 +21,10 @@ const Manutencoes = () => {
       if (filterStatus) params.status = filterStatus;
       
       const response = await manutencoesAPI.getAll(params);
-      setManutencoes(response.data.data);
+      setManutencoes(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error('Erro ao carregar manutenções:', error);
+      setManutencoes([]);
     } finally {
       setLoading(false);
     }
