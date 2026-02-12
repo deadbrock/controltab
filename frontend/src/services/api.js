@@ -3,7 +3,9 @@ import axios from 'axios';
 // Usar variável de ambiente em produção, proxy em desenvolvimento
 const baseURL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
+  : (import.meta.env.PROD 
+      ? 'https://controltab-production.up.railway.app/api'
+      : '/api');
 
 const api = axios.create({
   baseURL,
