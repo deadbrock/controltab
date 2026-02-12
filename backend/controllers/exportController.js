@@ -173,6 +173,86 @@ export const exportTabletsExcel = async (req, res) => {
   }
 };
 
+// Exportar Falhas para PDF
+export const exportFalhasPDF = async (req, res) => {
+  try {
+    const { severidade, status: statusFilter, data_inicio, data_fim } = req.query;
+    
+    let queryStr = `
+      SELECT f.*, t.tombamento, t.modelo, t.cliente, t.localizacao
+      FROM falhas f
+      JOIN tablets t ON f.tablet_id = t.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (severidade) {
+      queryStr += ' AND f.severidade = ?';
+      params.push(severidade);
+    }
+    if (statusFilter) {
+      queryStr += ' AND f.status = ?';
+      params.push(statusFilter);
+    }
+    if (data_inicio) {
+      queryStr += ' AND f.data_ocorrencia >= ?';
+      params.push(data_inicio);
+    }
+    if (data_fim) {
+      queryStr += ' AND f.data_ocorrencia <= ?';
+      params.push(data_fim);
+    }
+
+    queryStr += ' ORDER BY f.data_ocorrencia DESC';
+
+    const falhas = await query(queryStr, params);
+
+    // Criar PDF
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=relatorio-falhas-${Date.now()}.pdf`);
+    
+    doc.pipe(res);
+
+    // Cabeçalho
+    doc.fontSize(20).text('Relatório de Falhas', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(10).text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, { align: 'center' });
+    doc.text(`Total de Falhas: ${falhas.length}`, { align: 'center' });
+    doc.moveDown(2);
+
+    // Tabela
+    falhas.forEach((falha, index) => {
+      if (index > 0) doc.moveDown(1.5);
+      
+      // Verificar se precisa de nova página
+      if (doc.y > 700) {
+        doc.addPage();
+      }
+
+      doc.fontSize(12).font('Helvetica-Bold').text(`${falha.tombamento} - ${falha.tipo_falha}`);
+      doc.fontSize(9).font('Helvetica');
+      doc.text(`Cliente: ${falha.cliente}`);
+      doc.text(`Modelo: ${falha.modelo}`);
+      doc.text(`Data: ${new Date(falha.data_ocorrencia).toLocaleDateString('pt-BR')}`);
+      doc.text(`Severidade: ${falha.severidade} | Status: ${falha.status}`);
+      doc.text(`Descrição: ${falha.descricao}`);
+      if (falha.solucao) doc.text(`Solução: ${falha.solucao}`);
+      doc.moveTo(50, doc.y + 5).lineTo(550, doc.y + 5).stroke();
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error('Erro ao exportar PDF de falhas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao exportar PDF de falhas',
+      error: error.message
+    });
+  }
+};
+
 // Exportar Falhas para Excel
 export const exportFalhasExcel = async (req, res) => {
   try {
@@ -230,6 +310,90 @@ export const exportFalhasExcel = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao exportar falhas',
+      error: error.message
+    });
+  }
+};
+
+// Exportar Manutenções para PDF
+export const exportManutencoesPDF = async (req, res) => {
+  try {
+    const { tipo, status: statusFilter, data_inicio, data_fim } = req.query;
+    
+    let queryStr = `
+      SELECT m.*, t.tombamento, t.modelo, t.cliente, t.localizacao
+      FROM manutencoes m
+      JOIN tablets t ON m.tablet_id = t.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (tipo) {
+      queryStr += ' AND m.tipo = ?';
+      params.push(tipo);
+    }
+    if (statusFilter) {
+      queryStr += ' AND m.status = ?';
+      params.push(statusFilter);
+    }
+    if (data_inicio) {
+      queryStr += ' AND m.data_inicio >= ?';
+      params.push(data_inicio);
+    }
+    if (data_fim) {
+      queryStr += ' AND m.data_inicio <= ?';
+      params.push(data_fim);
+    }
+
+    queryStr += ' ORDER BY m.data_inicio DESC';
+
+    const manutencoes = await query(queryStr, params);
+
+    // Criar PDF
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=relatorio-manutencoes-${Date.now()}.pdf`);
+    
+    doc.pipe(res);
+
+    // Cabeçalho
+    doc.fontSize(20).text('Relatório de Manutenções', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(10).text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, { align: 'center' });
+    doc.text(`Total de Manutenções: ${manutencoes.length}`, { align: 'center' });
+    doc.moveDown(2);
+
+    // Tabela
+    manutencoes.forEach((manutencao, index) => {
+      if (index > 0) doc.moveDown(1.5);
+      
+      // Verificar se precisa de nova página
+      if (doc.y > 700) {
+        doc.addPage();
+      }
+
+      doc.fontSize(12).font('Helvetica-Bold').text(`${manutencao.tombamento} - ${manutencao.tipo}`);
+      doc.fontSize(9).font('Helvetica');
+      doc.text(`Cliente: ${manutencao.cliente}`);
+      doc.text(`Modelo: ${manutencao.modelo}`);
+      doc.text(`Início: ${new Date(manutencao.data_inicio).toLocaleDateString('pt-BR')}`);
+      if (manutencao.data_conclusao) {
+        doc.text(`Conclusão: ${new Date(manutencao.data_conclusao).toLocaleDateString('pt-BR')}`);
+      }
+      doc.text(`Status: ${manutencao.status}`);
+      if (manutencao.tecnico_responsavel) doc.text(`Técnico: ${manutencao.tecnico_responsavel}`);
+      if (manutencao.custo) doc.text(`Custo: R$ ${parseFloat(manutencao.custo).toFixed(2)}`);
+      doc.text(`Descrição: ${manutencao.descricao}`);
+      doc.moveTo(50, doc.y + 5).lineTo(550, doc.y + 5).stroke();
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error('Erro ao exportar PDF de manutenções:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao exportar PDF de manutenções',
       error: error.message
     });
   }

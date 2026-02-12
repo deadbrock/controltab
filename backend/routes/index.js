@@ -62,7 +62,9 @@ router.get('/relatorios/financeiro', authenticateToken, relatorioController.rela
 // Rotas de Exportação (apenas admin)
 router.get('/export/tablets/pdf', authenticateToken, requireAdmin, exportController.exportTabletsPDF);
 router.get('/export/tablets/excel', authenticateToken, requireAdmin, exportController.exportTabletsExcel);
+router.get('/export/falhas/pdf', authenticateToken, requireAdmin, exportController.exportFalhasPDF);
 router.get('/export/falhas/excel', authenticateToken, requireAdmin, exportController.exportFalhasExcel);
+router.get('/export/manutencoes/pdf', authenticateToken, requireAdmin, exportController.exportManutencoesPDF);
 router.get('/export/manutencoes/excel', authenticateToken, requireAdmin, exportController.exportManutencoesExcel);
 
 export default router;

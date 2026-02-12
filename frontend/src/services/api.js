@@ -103,12 +103,12 @@ export const relatoriosAPI = {
 
 // Exportações (PDF e Excel)
 export const exportAPI = {
-  tabletsPDF: (params) => api.get('/exports/tablets/pdf', { params, responseType: 'blob' }),
-  tabletsExcel: (params) => api.get('/exports/tablets/excel', { params, responseType: 'blob' }),
-  falhasPDF: (params) => api.get('/exports/falhas/pdf', { params, responseType: 'blob' }),
-  falhasExcel: (params) => api.get('/exports/falhas/excel', { params, responseType: 'blob' }),
-  manutencoesPDF: (params) => api.get('/exports/manutencoes/pdf', { params, responseType: 'blob' }),
-  manutencoesExcel: (params) => api.get('/exports/manutencoes/excel', { params, responseType: 'blob' }),
+  tabletsPDF: (params) => api.get('/export/tablets/pdf', { params, responseType: 'blob' }),
+  tabletsExcel: (params) => api.get('/export/tablets/excel', { params, responseType: 'blob' }),
+  falhasPDF: (params) => api.get('/export/falhas/pdf', { params, responseType: 'blob' }),
+  falhasExcel: (params) => api.get('/export/falhas/excel', { params, responseType: 'blob' }),
+  manutencoesPDF: (params) => api.get('/export/manutencoes/pdf', { params, responseType: 'blob' }),
+  manutencoesExcel: (params) => api.get('/export/manutencoes/excel', { params, responseType: 'blob' }),
 };
 
 export default api;
