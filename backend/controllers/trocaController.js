@@ -61,11 +61,14 @@ export const createTroca = async (req, res) => {
       }
     }
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+
     const result = await execute(`
       INSERT INTO trocas (
         tablet_antigo_id, tablet_novo_id, motivo, descricao_detalhada, data_troca, responsavel
       ) VALUES (?, ?, ?, ?, ?, ?)
-    `, [tablet_antigo_id, tablet_novo_id, motivo, descricao_detalhada, data_troca, responsavel]);
+    `, [tablet_antigo_id, tablet_novo_id, motivo, descricao_detalhada, normalizeValue(data_troca), responsavel]);
 
     // Atualizar status do tablet antigo
     await execute('UPDATE tablets SET status = \'SUBSTITUIDO\' WHERE id = ?', [tablet_antigo_id]);

@@ -118,6 +118,9 @@ export const createTablet = async (req, res) => {
       observacoes
     } = req.body;
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE/NUMERIC)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+
     const result = await execute(`
       INSERT INTO tablets (
         tombamento, modelo, fabricante, sistema_operacional, versao_so,
@@ -128,8 +131,8 @@ export const createTablet = async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [tombamento, modelo, fabricante, sistema_operacional, versao_so,
         imei, numero_serie, regiao, estado, cidade, endereco, cliente, localizacao, 
-        status, data_aquisicao, valor_aquisicao, fornecedor, numero_nota_fiscal,
-        garantia_ate, apolice_seguro, email_conta, senha_email, senha_tablet,
+        status, normalizeValue(data_aquisicao), normalizeValue(valor_aquisicao), fornecedor, numero_nota_fiscal,
+        normalizeValue(garantia_ate), apolice_seguro, email_conta, senha_email, senha_tablet,
         numero_telefone, operadora, observacoes]);
 
     // Registrar no histórico
@@ -174,9 +177,19 @@ export const updateTablet = async (req, res) => {
       });
     }
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE/NUMERIC)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+    const dateFields = ['data_aquisicao', 'garantia_ate'];
+    const numericFields = ['valor_aquisicao'];
+
     // Construir query de atualização
     const fields = Object.keys(updateData).filter(key => key !== 'id');
-    const values = fields.map(field => updateData[field]);
+    const values = fields.map(field => {
+      if (dateFields.includes(field) || numericFields.includes(field)) {
+        return normalizeValue(updateData[field]);
+      }
+      return updateData[field];
+    });
     
     if (fields.length === 0) {
       return res.status(400).json({

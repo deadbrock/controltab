@@ -64,13 +64,16 @@ export const createManutencao = async (req, res) => {
       });
     }
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE/NUMERIC)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+
     const result = await execute(`
       INSERT INTO manutencoes (
         tablet_id, tipo, descricao, data_inicio, data_conclusao,
         tecnico_responsavel, custo, status, observacoes
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [tablet_id, tipo, descricao, data_inicio, data_conclusao,
-        tecnico_responsavel, custo, status, observacoes]);
+    `, [tablet_id, tipo, descricao, normalizeValue(data_inicio), normalizeValue(data_conclusao),
+        tecnico_responsavel, normalizeValue(custo), status, observacoes]);
 
     // Atualizar status do tablet se necessário
     if (status === 'EM_ANDAMENTO') {
@@ -111,8 +114,18 @@ export const updateManutencao = async (req, res) => {
       });
     }
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE/NUMERIC)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+    const dateFields = ['data_inicio', 'data_conclusao'];
+    const numericFields = ['custo'];
+
     const fields = Object.keys(updateData).filter(key => key !== 'id');
-    const values = fields.map(field => updateData[field]);
+    const values = fields.map(field => {
+      if (dateFields.includes(field) || numericFields.includes(field)) {
+        return normalizeValue(updateData[field]);
+      }
+      return updateData[field];
+    });
     
     if (fields.length === 0) {
       return res.status(400).json({

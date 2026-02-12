@@ -67,11 +67,14 @@ export const createFalha = async (req, res) => {
       });
     }
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+
     const result = await execute(`
       INSERT INTO falhas (
         tablet_id, tipo_falha, descricao, severidade, data_ocorrencia, status, solucao
       ) VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [tablet_id, tipo_falha, descricao, severidade, data_ocorrencia, status, solucao]);
+    `, [tablet_id, tipo_falha, descricao, severidade, normalizeValue(data_ocorrencia), status, solucao]);
 
     // Registrar no histórico
     await execute(`
@@ -107,8 +110,17 @@ export const updateFalha = async (req, res) => {
       });
     }
 
+    // Converter strings vazias para null (PostgreSQL não aceita '' em campos DATE)
+    const normalizeValue = (value) => (value === '' || value === null || value === undefined) ? null : value;
+    const dateFields = ['data_ocorrencia'];
+
     const fields = Object.keys(updateData).filter(key => key !== 'id');
-    const values = fields.map(field => updateData[field]);
+    const values = fields.map(field => {
+      if (dateFields.includes(field)) {
+        return normalizeValue(updateData[field]);
+      }
+      return updateData[field];
+    });
     
     if (fields.length === 0) {
       return res.status(400).json({
