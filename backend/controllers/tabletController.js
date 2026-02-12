@@ -147,10 +147,21 @@ export const createTablet = async (req, res) => {
       data: { id: result.lastID }
     });
   } catch (error) {
-    if (error.message.includes('UNIQUE constraint failed')) {
+    // Tratar erros de constraint UNIQUE (duplicação)
+    if (error.message.includes('UNIQUE constraint failed') || error.message.includes('duplicate key value violates unique constraint')) {
+      let field = 'desconhecido';
+      
+      if (error.message.includes('tombamento') || error.message.includes('tablets_tombamento_key')) {
+        field = 'Tombamento';
+      } else if (error.message.includes('imei') || error.message.includes('tablets_imei_key')) {
+        field = 'IMEI';
+      } else if (error.message.includes('numero_serie') || error.message.includes('tablets_numero_serie_key')) {
+        field = 'Número de Série';
+      }
+      
       return res.status(400).json({
         success: false,
-        message: 'Já existe um tablet com este tombamento, IMEI ou número de série'
+        message: `Já existe um tablet cadastrado com este ${field}. Por favor, use um valor diferente.`
       });
     }
 
@@ -218,6 +229,24 @@ export const updateTablet = async (req, res) => {
       message: 'Tablet atualizado com sucesso'
     });
   } catch (error) {
+    // Tratar erros de constraint UNIQUE (duplicação)
+    if (error.message.includes('UNIQUE constraint failed') || error.message.includes('duplicate key value violates unique constraint')) {
+      let field = 'desconhecido';
+      
+      if (error.message.includes('tombamento') || error.message.includes('tablets_tombamento_key')) {
+        field = 'Tombamento';
+      } else if (error.message.includes('imei') || error.message.includes('tablets_imei_key')) {
+        field = 'IMEI';
+      } else if (error.message.includes('numero_serie') || error.message.includes('tablets_numero_serie_key')) {
+        field = 'Número de Série';
+      }
+      
+      return res.status(400).json({
+        success: false,
+        message: `Já existe um tablet cadastrado com este ${field}. Por favor, use um valor diferente.`
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Erro ao atualizar tablet',
