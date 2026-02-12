@@ -1,11 +1,17 @@
 import axios from 'axios';
 
-// Usar variável de ambiente em produção, proxy em desenvolvimento
-const baseURL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : (import.meta.env.PROD 
-      ? 'https://controltab-production.up.railway.app/api'
-      : '/api');
+// Configuração da API - produção vs desenvolvimento
+const isProduction = window.location.hostname !== 'localhost';
+const RAILWAY_API = 'https://controltab-production.up.railway.app/api';
+const LOCAL_API = '/api';
+
+const baseURL = isProduction ? RAILWAY_API : LOCAL_API;
+
+console.log('🔧 API Config:', {
+  hostname: window.location.hostname,
+  isProduction,
+  baseURL
+});
 
 const api = axios.create({
   baseURL,
