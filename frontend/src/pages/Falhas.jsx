@@ -25,9 +25,10 @@ const Falhas = () => {
       if (filters.severidade) params.severidade = filters.severidade;
       
       const response = await falhasAPI.getAll(params);
-      setFalhas(response.data.data);
+      setFalhas(response.data.data || []);
     } catch (error) {
       console.error('Erro ao carregar falhas:', error);
+      setFalhas([]); // Array vazio em caso de erro
     } finally {
       setLoading(false);
     }

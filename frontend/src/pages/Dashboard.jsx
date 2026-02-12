@@ -27,6 +27,22 @@ const Dashboard = () => {
       setStatistics(response.data.data);
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
+      // Definir estatísticas vazias em caso de erro
+      setStatistics({
+        stats: {
+          total: 0,
+          ativos: 0,
+          manutencao: 0,
+          inativos: 0,
+          substituidos: 0,
+          norte: 0,
+          nordeste: 0,
+          falhasAbertas: 0,
+          manutencoesAgendadas: 0
+        },
+        porLocalizacao: [],
+        ultimasAtividades: []
+      });
     } finally {
       setLoading(false);
     }
